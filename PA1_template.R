@@ -1,0 +1,27 @@
+setwd('E:/FER_posao/Coursera_Iversity/Data Scientist Specialization/5 Reproducible research/Peer assigment 1')
+dt <- read.csv("activity.csv")
+steps_daily <- tapply(dt$steps,dt$date,sum,na.rm='true')
+hist(steps_daily,main = 'Daily Steps')
+steps_daily_mean <- mean(steps_daily)
+steps_daily_median <- median(steps_daily)
+steps_by_interval <- aggregate(steps ~ interval,dt,mean)
+plot(steps_by_interval$interval,steps_by_interval$steps,type="l",xlab="5 minute intervals",ylab="average number of steps")
+max_steps_by_interval <- steps_by_interval[which.max(steps_by_interval$steps),]
+NA_number <- sum(is.na(dt$steps))
+new_dt <- dt
+new_dt$steps <-replace(new_dt$steps,is.na(new_dt$steps),steps_by_interval$steps)
+new_steps_daily <- tapply(new_dt$steps,new_dt$date,sum,na.rm='true')
+hist(new_steps_daily,main = 'Daily Steps with NA')
+new_steps_daily_mean <- mean(new_steps_daily)
+new_steps_daily_median <- median(new_steps_daily)
+library(timeDate)
+weekdays <- isWeekday(new_dt$date)
+new_dt_weekdays <- new_dt[weekdays,]
+new_dt_weekends <- new_dt[!weekdays,]
+steps_by_interval_weekdays <- aggregate(steps ~ interval,new_dt_weekdays,mean)
+steps_by_interval_weekends <- aggregate(steps ~ interval,new_dt_weekends,mean)
+par(mfrow=c(2,1))
+plot(steps_by_interval_weekdays$interval,steps_by_interval_weekdays$steps,type="l",xlab="5 minute intervals",ylab="average number of steps on weekdays")
+title("Weekdays")
+plot(steps_by_interval_weekends$interval,steps_by_interval_weekends$steps,type="l",xlab="5 minute intervals",ylab="average number of steps on weekends")
+title("Weekends")
